@@ -1,0 +1,106 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% textualcnc.sty
+%% Copyright (c) 2016 Nick Vrvilo
+%% <nick.vrvilo@alumni.rice.edu>
+%
+% This file may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License, either version 1.3c of this license
+% or (at your option) any later version. The latest version of this
+% license is in:
+%
+%    http://www.latex-project.org/lppl/
+%
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008/05/04 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Nick Vrvilo.
+%
+% This work consists of the file textualcnc.sty.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% CnC textual representation commands
+%
+% Designed for use with the libertine fonts
+% (the sans-serif font is called "Linux Biolinum")
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\ProvidesPackage{textualcnc}[2016/06/15]
+
+\RequirePackage{textcomp} % extra text-mode characters
+
+\RequirePackage{kvoptions} % improved package options support
+
+\RequirePackage{calc} % compute kerning widths
+
+\SetupKeyvalOptions{
+ family=TextualCnC,
+ prefix=TextualCnC@
+}
+
+\DeclareBoolOption[false]{doublebracket}
+\DeclareComplementaryOption{singlebracket}{doublebracket}
+
+\ProcessKeyvalOptions*{}
+
+% KERNING
+% Correct for libertine's bracket spacing.
+% Note: the negative thin space "\!" is about -0.15em
+\newlength{\@cncKernAmount}
+\newcommand{\@cncKernFor}[1]{%
+ \setlength{\@cncKernAmount}{\widthof{#1} * \real{-0.5}}%
+ \kern\@cncKernAmount%
+}
+\@ifpackageloaded{libertine}%
+{\newcommand{\@cncAnglePad}{\kern+0.06em}
+ \newcommand{\@cncBracketPad}{}
+ \newcommand{\@cncParenPad}{}}%
+{\newcommand{\@cncAnglePad}{\kern+0.06em}
+ \newcommand{\@cncBracketPad}{\kern+0.06em}
+ \newcommand{\@cncParenPad}{}}
+
+% SINGLE/DOUBLE BRACKETS
+\newcommand{\@cncIfDB}[1]{\ifTextualCnC@doublebracket{#1}\fi}
+\newcommand{\cncSetDoubleBracket}{\let\ifTextualCnC@doublebracket\iftrue}
+\newcommand{\cncSetSingleBracket}{\let\ifTextualCnC@doublebracket\iffalse}
+\newcommand{\@cncOpenBracket}[1]{\@cncIfDB{#1\@cncKernFor{#1}}#1}
+\newcommand{\@cncCloseBracket}[1]{#1\@cncIfDB{\@cncKernFor{#1}#1}}
+
+% FONT
+\newcommand{\@cncFont}{\sffamily}
+\newcommand{\cncSetFont}[1]{\renewcommand{\@cncFont}{#1}}
+
+% TAG
+\newcommand{\@cncTagCs}[1]{%
+  \def\nextitem{\def\nextitem{,\,}}% deferred def skips first item
+  \@for \el:=#1\do{\nextitem\el}% prepend separator to each item
+}
+\newcommand{\cncTag}[1]{{\@cncFont\textlangle\@cncTagCs{#1}\textrangle}}
+\newcommand{\cncKV}[2]{{\@cncFont\cncTag{#1}\,\textrightarrow\,#2}}
+
+% CONTROL
+\newcommand{\@cncCtrlOpen}{\@cncOpenBracket{\textlangle}\@cncAnglePad}
+\newcommand{\@cncCtrlClose}{\@cncAnglePad\@cncCloseBracket{\textrangle}}
+\newcommand{\cncCtrlColl}[1]{{\@cncFont\@cncCtrlOpen#1\@cncCtrlClose}}
+\newcommand{\cncCtrl}[2]%
+{{\@cncFont{\@cncCtrlOpen}#1:\,\@cncTagCs{#2}{\@cncCtrlClose}}}
+% Non-abbreviated aliases for control commands
+\let\cncControl\cncCtrl
+\let\cncControlColl\cncCtrlColl
+
+% STEP
+\newcommand{\@cncStepOpen}{\@cncOpenBracket{(}\@cncParenPad}
+\newcommand{\@cncStepClose}{\@cncParenPad\@cncCloseBracket{)}}
+\newcommand{\cncStepColl}[1]{{\@cncFont\@cncStepOpen#1\@cncStepClose}}
+\newcommand{\cncStep}[2]%
+{{\@cncFont{\@cncStepOpen}#1:\,\@cncTagCs{#2}{\@cncStepClose}}}
+
+% ITEM
+\newcommand{\@cncItemOpen}{\@cncOpenBracket{[}\@cncBracketPad}
+\newcommand{\@cncItemClose}{\@cncBracketPad\@cncCloseBracket{]}}
+\newcommand{\cncItemColl}[1]{{\@cncFont\@cncItemOpen#1\@cncItemClose}}
+\newcommand{\cncItem}[2]%
+{{\@cncFont\@cncItemOpen#1:\,\@cncTagCs{#2}\@cncItemClose}}
+\newcommand{\cncItemV}[3]%
+{{\@cncFont\@cncItemOpen#1:\,\@cncTagCs{#2}\,\textrightarrow\,#3\@cncItemClose}}
+
+\endinput

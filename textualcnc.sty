@@ -39,6 +39,7 @@
 
 \DeclareBoolOption[false]{doublebracket}
 \DeclareComplementaryOption{singlebracket}{doublebracket}
+\DeclareBoolOption[false]{mathtag}
 
 \ProcessKeyvalOptions*{}
 
@@ -74,8 +75,16 @@
   \def\nextitem{\def\nextitem{,\,}}% deferred def skips first item
   \@for \el:=#1\do{\nextitem\el}% prepend separator to each item
 }
+\newcommand{\cncMathTag}[1]{\ensuremath{\langle\@cncTagCs{#1}\rangle}}
+\newcommand{\cncMathKV}[2]{\ensuremath{\cncMathTag{#1}\,\rightarrow\,#2}}
+\ifTextualCnC@mathtag
+\let\cncTag\cncMathTag
+\let\cncKV\cncMathKV
+\else
 \newcommand{\cncTag}[1]{{\@cncFont\textlangle\@cncTagCs{#1}\textrangle}}
 \newcommand{\cncKV}[2]{{\@cncFont\cncTag{#1}\,\textrightarrow\,#2}}
+\fi
+
 
 % CONTROL
 \newcommand{\@cncCtrlOpen}{\@cncOpenBracket{\textlangle}\@cncAnglePad}
